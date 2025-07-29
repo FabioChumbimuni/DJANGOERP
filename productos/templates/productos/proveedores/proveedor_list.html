@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Proveedores - Gestión de Productos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'productos/css/productos.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1><i class="fas fa-truck"></i> Gestión de Proveedores</h1>
+            <p class="subtitle">Administra los proveedores de tus productos</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'productos:proveedor_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Proveedor
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabla de Proveedores -->
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Proveedores Registrados</h2>
+            <div class="table-actions">
+                <button class="btn btn-outline" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            {% if proveedores %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Contacto</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for proveedor in proveedores %}
+                    <tr>
+                        <td class="name-cell">
+                            <strong>{{ proveedor.nombre }}</strong>
+                        </td>
+                        <td class="contact-cell">
+                            {% if proveedor.contacto %}
+                                {{ proveedor.contacto }}
+                            {% else %}
+                                <span class="no-contact">Sin contacto</span>
+                            {% endif %}
+                        </td>
+                        <td class="phone-cell">
+                            {% if proveedor.telefono %}
+                                {{ proveedor.telefono }}
+                            {% else %}
+                                <span class="no-phone">Sin teléfono</span>
+                            {% endif %}
+                        </td>
+                        <td class="email-cell">
+                            {% if proveedor.email %}
+                                <a href="mailto:{{ proveedor.email }}">{{ proveedor.email }}</a>
+                            {% else %}
+                                <span class="no-email">Sin email</span>
+                            {% endif %}
+                        </td>
+                        <td class="count-cell">
+                            <span class="product-count">{{ proveedor.producto_set.count }}</span>
+                        </td>
+                        <td class="actions-cell">
+                            <div class="action-buttons">
+                                <a href="{% url 'productos:proveedor_update' proveedor.pk %}" class="btn btn-sm btn-outline" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button onclick="deleteProveedor({{ proveedor.pk }}, '{{ proveedor.nombre }}')" class="btn btn-sm btn-danger" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <!-- Paginación -->
+            {% if is_paginated %}
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} proveedores
+                </div>
+                
+                <div class="pagination-controls">
+                    {% if page_obj.has_previous %}
+                    <a href="?page=1" class="btn btn-sm btn-outline">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    <span class="current-page">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3>No hay proveedores</h3>
+                <p>Comienza registrando tu primer proveedor.</p>
+                <a href="{% url 'productos:proveedor_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Crear Proveedor
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Toasts -->
+{% include 'productos/includes/toasts.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'productos/js/productos.js' %}"></script>
+<script>
+function deleteProveedor(proveedorId, proveedorNombre) {
+    if (confirm(`¿Estás seguro de que quieres eliminar el proveedor "${proveedorNombre}"?`)) {
+        fetch(`/productos/proveedores/${proveedorId}/eliminar/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('success', 'Proveedor eliminado exitosamente');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } else {
+                showToast('error', 'Error al eliminar el proveedor');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('error', 'Error al eliminar el proveedor');
+        });
+    }
+}
+</script>
+{% endblock %} 

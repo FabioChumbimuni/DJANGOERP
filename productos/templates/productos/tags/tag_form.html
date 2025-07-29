@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if object %}Editar Tag{% else %}Nuevo Tag{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'productos/css/productos.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-{% if object %}edit{% else %}plus{% endif %}"></i>
+                {% if object %}Editar Tag{% else %}Nuevo Tag{% endif %}
+            </h1>
+            <p class="subtitle">
+                {% if object %}
+                Modifica la información del tag
+                {% else %}
+                Crea una nueva etiqueta para categorizar productos
+                {% endif %}
+            </p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'productos:tag_list' %}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <form method="post" class="tag-form">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <h3><i class="fas fa-info-circle"></i> Información del Tag</h3>
+            
+            <div class="form-group">
+                <label for="{{ form.nombre.id_for_label }}">Nombre del Tag *</label>
+                {{ form.nombre }}
+                {% if form.nombre.errors %}
+                <div class="error-message">{{ form.nombre.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.color.id_for_label }}">Color</label>
+                <div class="color-picker-container">
+                    {{ form.color }}
+                    <div class="color-preview" id="colorPreview"></div>
+                </div>
+                {% if form.color.errors %}
+                <div class="error-message">{{ form.color.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.descripcion.id_for_label }}">Descripción</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                <div class="error-message">{{ form.descripcion.errors.0 }}</div>
+                {% endif %}
+            </div>
+            
+            <!-- Previsualización del Tag -->
+            <div class="tag-preview-section">
+                <h4>Previsualización</h4>
+                <div class="tag-preview" id="tagPreview">
+                    <span class="preview-tag">Nuevo Tag</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if object %}Actualizar Tag{% else %}Crear Tag{% endif %}
+            </button>
+            <a href="{% url 'productos:tag_list' %}" class="btn btn-outline">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Toasts -->
+{% include 'productos/includes/toasts.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'productos/js/productos.js' %}"></script>
+<script>
+// Previsualización en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const nombreInput = document.getElementById('{{ form.nombre.id_for_label }}');
+    const colorInput = document.getElementById('{{ form.color.id_for_label }}');
+    const previewTag = document.getElementById('tagPreview').querySelector('.preview-tag');
+    const colorPreview = document.getElementById('colorPreview');
+    
+    function updatePreview() {
+        const nombre = nombreInput.value || 'Nuevo Tag';
+        const color = colorInput.value;
+        
+        previewTag.textContent = nombre;
+        previewTag.style.backgroundColor = color + '20';
+        previewTag.style.color = color;
+        
+        colorPreview.style.backgroundColor = color;
+    }
+    
+    nombreInput.addEventListener('input', updatePreview);
+    colorInput.addEventListener('input', updatePreview);
+    updatePreview();
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,103 @@
+<!-- Modal Agregar Proveedor -->
+<div id="proveedorModal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <h3><i class="fas fa-truck"></i> Agregar Nuevo Proveedor</h3>
+            <button type="button" class="modal-close" onclick="closeProveedorModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="proveedorForm" class="modal-form">
+            {% csrf_token %}
+            
+            <!-- Pestañas -->
+            <div class="tabs">
+                <button type="button" class="tab-button active" onclick="switchTab('info-basica')">
+                    <i class="fas fa-info-circle"></i> Info Básica
+                </button>
+                <button type="button" class="tab-button" onclick="switchTab('datos-fiscales')">
+                    <i class="fas fa-file-invoice"></i> Datos Fiscales
+                </button>
+            </div>
+            
+            <!-- Contenido de pestañas -->
+            <div class="tab-content">
+                <!-- Pestaña Info Básica -->
+                <div id="info-basica" class="tab-pane active">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="proveedor_nombre">Nombre o Razón Social *</label>
+                            <input type="text" id="proveedor_nombre" name="nombre" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="proveedor_contacto">Contacto</label>
+                            <input type="text" id="proveedor_contacto" name="contacto">
+                        </div>
+                        <div class="form-group">
+                            <label for="proveedor_telefono">Teléfono</label>
+                            <input type="tel" id="proveedor_telefono" name="telefono">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proveedor_email">Email</label>
+                        <input type="email" id="proveedor_email" name="email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proveedor_direccion">Dirección</label>
+                        <textarea id="proveedor_direccion" name="direccion" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Pestaña Datos Fiscales -->
+                <div id="datos-fiscales" class="tab-pane">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="proveedor_rfc">RFC</label>
+                            <input type="text" id="proveedor_rfc" name="rfc" maxlength="13">
+                        </div>
+                        <div class="form-group">
+                            <label for="proveedor_curp">CURP</label>
+                            <input type="text" id="proveedor_curp" name="curp" maxlength="18">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proveedor_razon_fiscal">Razón Fiscal</label>
+                        <input type="text" id="proveedor_razon_fiscal" name="razon_fiscal">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="proveedor_direccion_fiscal">Dirección Fiscal</label>
+                        <textarea id="proveedor_direccion_fiscal" name="direccion_fiscal" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="proveedor_cp">Código Postal</label>
+                            <input type="text" id="proveedor_cp" name="cp" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label for="proveedor_ciudad">Ciudad</label>
+                            <input type="text" id="proveedor_ciudad" name="ciudad">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Crear Proveedor
+                </button>
+                <button type="button" class="btn btn-outline" onclick="closeProveedorModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div> 

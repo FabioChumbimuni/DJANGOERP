@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+{% if object %}Editar Producto{% else %}Nuevo Producto{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'productos/css/productos.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-{% if object %}edit{% else %}plus{% endif %}"></i>
+                {% if object %}Editar Producto{% else %}Nuevo Producto{% endif %}
+            </h1>
+            <p class="subtitle">
+                {% if object %}
+                Modifica la información del producto
+                {% else %}
+                Completa la información para crear un nuevo producto
+                {% endif %}
+            </p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'productos:dashboard' %}" class="btn btn-outline">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+    </div>
+
+    <form method="post" class="product-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-grid">
+            <!-- Columna Izquierda -->
+            <div class="form-column">
+                <div class="form-section">
+                    <h3><i class="fas fa-info-circle"></i> Información Básica</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.nombre.id_for_label }}">Nombre del Producto *</label>
+                        {{ form.nombre }}
+                        {% if form.nombre.errors %}
+                        <div class="error-message">{{ form.nombre.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.imagen.id_for_label }}">Imagen del Producto</label>
+                        <div class="image-upload-container">
+                            {{ form.imagen }}
+                            <div class="image-preview" id="imagePreview">
+                                {% if object.imagen %}
+                                <img src="{{ object.imagen.url }}" alt="Imagen actual" style="max-width: 200px; border-radius: 8px;">
+                                {% else %}
+                                <div class="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Haz clic para seleccionar una imagen</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if form.imagen.errors %}
+                        <div class="error-message">{{ form.imagen.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.modelo.id_for_label }}">Modelo</label>
+                        {{ form.modelo }}
+                        {% if form.modelo.errors %}
+                        <div class="error-message">{{ form.modelo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.cantidad.id_for_label }}">Cantidad *</label>
+                        {{ form.cantidad }}
+                        {% if form.cantidad.errors %}
+                        <div class="error-message">{{ form.cantidad.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tipo de Producto *</label>
+                        <div class="radio-group-horizontal">
+                            {{ form.tipo }}
+                        </div>
+                        {% if form.tipo.errors %}
+                        <div class="error-message">{{ form.tipo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3><i class="fas fa-tags"></i> Categorización</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.tags.id_for_label }}">Tags</label>
+                        <div class="tags-selection">
+                            {{ form.tags }}
+                        </div>
+                        <div class="select-with-button">
+                            <button type="button" class="btn btn-sm btn-outline" onclick="openTagModal()">
+                                <i class="fas fa-plus"></i> Nuevo Tag
+                            </button>
+                        </div>
+                        {% if form.tags.errors %}
+                        <div class="error-message">{{ form.tags.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.marca.id_for_label }}">Marca</label>
+                        <div class="select-with-button">
+                            {{ form.marca }}
+                            <button type="button" class="btn btn-sm btn-outline" onclick="openMarcaModal()">
+                                <i class="fas fa-plus"></i> Nueva Marca
+                            </button>
+                        </div>
+                        {% if form.marca.errors %}
+                        <div class="error-message">{{ form.marca.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.proveedor.id_for_label }}">Proveedor</label>
+                        <div class="select-with-button">
+                            {{ form.proveedor }}
+                            <button type="button" class="btn btn-sm btn-outline" onclick="openProveedorModal()">
+                                <i class="fas fa-plus"></i> Nuevo Proveedor
+                            </button>
+                        </div>
+                        {% if form.proveedor.errors %}
+                        <div class="error-message">{{ form.proveedor.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha - Precios Destacados -->
+            <div class="form-column">
+                <div class="form-section pricing-section">
+                    <h3><i class="fas fa-dollar-sign"></i> Información de Precios (S/)</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.precio_mayoreo.id_for_label }}">Precio de Venta Mayoreo</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                            {{ form.precio_mayoreo }}
+                        </div>
+                        {% if form.precio_mayoreo.errors %}
+                        <div class="error-message">{{ form.precio_mayoreo.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.precio_unitario.id_for_label }}">Precio de Venta Unitario</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                            {{ form.precio_unitario }}
+                        </div>
+                        {% if form.precio_unitario.errors %}
+                        <div class="error-message">{{ form.precio_unitario.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.costo_proveedor.id_for_label }}">Costo del Proveedor</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                            {{ form.costo_proveedor }}
+                        </div>
+                        {% if form.costo_proveedor.errors %}
+                        <div class="error-message">{{ form.costo_proveedor.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Calculadora de Margen -->
+                    <div class="margin-calculator">
+                        <h4>Calculadora de Margen</h4>
+                        <div class="margin-info">
+                            <div class="margin-item">
+                                <span>Margen Bruto:</span>
+                                <span id="margen-bruto">S/ 0.00</span>
+                            </div>
+                            <div class="margin-item">
+                                <span>Porcentaje:</span>
+                                <span id="margen-porcentaje">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if object %}Actualizar Producto{% else %}Crear Producto{% endif %}
+            </button>
+            <a href="{% url 'productos:dashboard' %}" class="btn btn-outline">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Modales -->
+{% include 'productos/modals/agregar_tag.html' %}
+{% include 'productos/modals/agregar_proveedor.html' %}
+{% include 'productos/modals/agregar_marca.html' %}
+
+<!-- Toasts -->
+{% include 'productos/includes/toasts.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'productos/js/productos.js' %}"></script>
+<script src="{% static 'productos/js/modals.js' %}"></script>
+<script>
+// Calculadora de margen en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    const precioUnitario = document.getElementById('{{ form.precio_unitario.id_for_label }}');
+    const costoProveedor = document.getElementById('{{ form.costo_proveedor.id_for_label }}');
+    
+    function calcularMargen() {
+        const precio = parseFloat(precioUnitario.value) || 0;
+        const costo = parseFloat(costoProveedor.value) || 0;
+        const margen = precio - costo;
+        const porcentaje = precio > 0 ? (margen / precio) * 100 : 0;
+        
+        document.getElementById('margen-bruto').textContent = 'S/ ' + margen.toFixed(2);
+        document.getElementById('margen-porcentaje').textContent = porcentaje.toFixed(1) + '%';
+    }
+    
+    precioUnitario.addEventListener('input', calcularMargen);
+    costoProveedor.addEventListener('input', calcularMargen);
+    calcularMargen();
+    
+    // Previsualización de imagen
+    const imageInput = document.getElementById('{{ form.imagen.id_for_label }}');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Vista previa" style="max-width: 200px; border-radius: 8px;">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+});
+</script>
+{% endblock %} 

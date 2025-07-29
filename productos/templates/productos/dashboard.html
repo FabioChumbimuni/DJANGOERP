@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Gestión de Productos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'productos/css/productos.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1><i class="fas fa-boxes"></i> Gestión de Productos</h1>
+            <p class="subtitle">Administra tu inventario de manera eficiente</p>
+        </div>
+        <div class="header-actions">
+            <a href="{% url 'productos:producto_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nuevo Producto
+            </a>
+        </div>
+    </div>
+
+    <!-- Cards de Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_productos }}</h3>
+                <p>Productos</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_tags }}</h3>
+                <p>Tags</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_proveedores }}</h3>
+                <p>Proveedores</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-copyright"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ stats.total_marcas }}</h3>
+                <p>Marcas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="filters-section">
+        <form method="get" class="filters-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" placeholder="Buscar productos..." 
+                       value="{{ request.GET.search }}">
+            </div>
+            
+            <div class="filter-group">
+                <select name="tipo" class="filter-select">
+                    <option value="">Todos los tipos</option>
+                    <option value="bien" {% if request.GET.tipo == 'bien' %}selected{% endif %}>Bien</option>
+                    <option value="servicio" {% if request.GET.tipo == 'servicio' %}selected{% endif %}>Servicio</option>
+                    <option value="otros" {% if request.GET.tipo == 'otros' %}selected{% endif %}>Otros</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-secondary">
+                <i class="fas fa-filter"></i> Filtrar
+            </button>
+        </form>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <div class="table-container">
+        <div class="table-header">
+            <h2>Productos</h2>
+            <div class="table-actions">
+                <button class="btn btn-outline" onclick="refreshTable()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+        
+        {% include 'productos/includes/tabla_productos.html' %}
+    </div>
+
+    <!-- Productos Recientes -->
+    {% if productos_recientes %}
+    <div class="recent-section">
+        <h3>Productos Recientes</h3>
+        <div class="recent-grid">
+            {% for producto in productos_recientes %}
+            <div class="recent-card">
+                <div class="recent-info">
+                    <h4>{{ producto.nombre }}</h4>
+                    <p class="recent-meta">
+                        {% if producto.marca %}{{ producto.marca.nombre }}{% endif %}
+                        • {{ producto.get_tipo_display }}
+                    </p>
+                    <p class="recent-price">${{ producto.precio_unitario }}</p>
+                </div>
+                <div class="recent-actions">
+                    <a href="{% url 'productos:producto_update' producto.pk %}" class="btn btn-sm btn-outline">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modales -->
+{% include 'productos/modals/agregar_tag.html' %}
+{% include 'productos/modals/agregar_proveedor.html' %}
+{% include 'productos/modals/agregar_marca.html' %}
+
+<!-- Toasts -->
+{% include 'productos/includes/toasts.html' %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'productos/js/productos.js' %}"></script>
+<script src="{% static 'productos/js/modals.js' %}"></script>
+{% endblock %} 

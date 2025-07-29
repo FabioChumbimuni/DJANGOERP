@@ -1,0 +1,135 @@
+<div class="table-responsive">
+    {% if productos %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Marca</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Precio Unit.</th>
+                <th>Proveedor</th>
+                <th>Tags</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td class="id-cell">{{ producto.id }}</td>
+                <td class="name-cell">
+                    <div class="product-info">
+                        <strong>{{ producto.nombre }}</strong>
+                        {% if producto.modelo %}
+                        <small>{{ producto.modelo }}</small>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="brand-cell">
+                    {% if producto.marca %}
+                    <span class="brand-tag">{{ producto.marca.nombre }}</span>
+                    {% else %}
+                    <span class="no-brand">Sin marca</span>
+                    {% endif %}
+                </td>
+                <td class="type-cell">
+                    <span class="type-badge type-{{ producto.tipo }}">
+                        {{ producto.get_tipo_display }}
+                    </span>
+                </td>
+                <td class="quantity-cell">
+                    <span class="quantity-display {% if producto.cantidad < 10 %}low-stock{% endif %}">
+                        {{ producto.cantidad }}
+                    </span>
+                </td>
+                <td class="price-cell">
+                    <span class="price">S/ {{ producto.precio_unitario }}</span>
+                </td>
+                <td class="supplier-cell">
+                    {% if producto.proveedor %}
+                    <span class="supplier-name">{{ producto.proveedor.nombre }}</span>
+                    {% else %}
+                    <span class="no-supplier">Sin proveedor</span>
+                    {% endif %}
+                </td>
+                <td class="tags-cell">
+                    {% if producto.tags.all %}
+                    <div class="tags-container">
+                        {% for tag in producto.tags.all %}
+                        <span class="tag" style="background-color: {{ tag.color }}20; color: {{ tag.color }};">
+                            {{ tag.nombre }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <span class="no-tags">Sin tags</span>
+                    {% endif %}
+                </td>
+                <td class="actions-cell">
+                    <div class="action-buttons">
+                        <a href="{% url 'productos:producto_update' producto.pk %}" 
+                           class="btn btn-sm btn-outline" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="deleteProducto({{ producto.pk }}, '{{ producto.nombre }}')" 
+                                class="btn btn-sm btn-danger" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Paginación -->
+    {% if is_paginated %}
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Mostrando {{ page_obj.start_index }} - {{ page_obj.end_index }} de {{ page_obj.paginator.count }} productos
+        </div>
+        
+        <div class="pagination-controls">
+            {% if page_obj.has_previous %}
+            <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}" 
+               class="btn btn-sm btn-outline">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}" 
+               class="btn btn-sm btn-outline">
+                <i class="fas fa-angle-left"></i>
+            </a>
+            {% endif %}
+            
+            <span class="current-page">
+                Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}" 
+               class="btn btn-sm btn-outline">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.tipo %}&tipo={{ request.GET.tipo }}{% endif %}" 
+               class="btn btn-sm btn-outline">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fas fa-box-open"></i>
+        </div>
+        <h3>No hay productos</h3>
+        <p>Comienza agregando tu primer producto al inventario.</p>
+        <a href="{% url 'productos:producto_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Crear Producto
+        </a>
+    </div>
+    {% endif %}
+</div> 

@@ -1,0 +1,69 @@
+<!-- Modal Agregar Marca -->
+<div id="marcaModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-copyright"></i> Agregar Nueva Marca</h3>
+            <button type="button" class="modal-close" onclick="closeMarcaModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <form id="marcaForm" class="modal-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="marca_nombre">Nombre de la Marca *</label>
+                <input type="text" id="marca_nombre" name="nombre" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="marca_logo">Logo</label>
+                <div class="file-upload-container">
+                    <input type="file" id="marca_logo" name="logo" accept="image/*">
+                    <div class="file-upload-preview">
+                        <div class="upload-placeholder" id="uploadPlaceholder">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Haz clic para seleccionar un logo</p>
+                        </div>
+                        <img id="logoPreview" class="logo-preview" style="display: none;">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="marca_sitio_web">Sitio Web</label>
+                <input type="url" id="marca_sitio_web" name="sitio_web" placeholder="https://ejemplo.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="marca_descripcion">Descripción</label>
+                <textarea id="marca_descripcion" name="descripcion" rows="3"></textarea>
+            </div>
+            
+            <!-- Previsualización de la Marca -->
+            <div class="marca-preview-section">
+                <h4>Previsualización de la Marca</h4>
+                <div class="marca-preview-card" id="marcaPreviewCard">
+                    <div class="marca-preview-logo" id="marcaPreviewLogo">
+                        <i class="fas fa-copyright"></i>
+                    </div>
+                    <div class="marca-preview-info">
+                        <h5 id="marcaPreviewNombre">Nombre de la Marca</h5>
+                        <p id="marcaPreviewDesc">Descripción de la marca</p>
+                        <a href="#" id="marcaPreviewWeb" class="marca-website" style="display: none;">
+                            <i class="fas fa-external-link-alt"></i> Visitar sitio web
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Crear Marca
+                </button>
+                <button type="button" class="btn btn-outline" onclick="closeMarcaModal()">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div> 
